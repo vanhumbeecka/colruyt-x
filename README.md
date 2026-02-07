@@ -1,73 +1,46 @@
-# React + TypeScript + Vite
+# Colruyt-X
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Grocery list manager for two people, built on Colruyt product data. Full-stack TypeScript: React SPA + Express API backed by [Turso](https://turso.tech/) (libSQL).
 
-Currently, two official plugins are available:
+Live at **https://colruyt-x.vercel.app/**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Stack
 
-## React Compiler
+- **Client:** React 19, React Router 7, Tailwind CSS 4, Vite
+- **Server:** Express 5, libSQL (Turso)
+- **Auth:** PIN login with HMAC-signed stateless tokens (HttpOnly cookie or Bearer token)
+- **Tooling:** oxlint, oxfmt, vitest, lint-staged
+- **Deployment:** Vercel (SPA static files + serverless API function)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Getting started
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+cp .env.example .env   # fill in APP_PIN, TURSO_DATABASE_URL, TURSO_AUTH_TOKEN
+npm install
+npm run import:products # populate the database with Colruyt product data
+npm run dev             # starts client (Vite) + server (tsx watch) concurrently
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Commands
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev              # Start client + server concurrently
+npm run dev:client       # Vite dev server only (port 5173)
+npm run dev:server       # Express API server only (port 3000)
+npm run build            # TypeScript check + Vite build
+npm test                 # Run tests (vitest)
+npm run lint             # Lint (oxlint)
+npm run fmt              # Format (oxfmt)
+npm run fmt:check        # Check formatting without writing
+npm start                # Production server (API + built client)
+npm run import:products  # Fetch latest product data from GCS and upsert into Turso
+make deploy              # Test + lint + format check + build + deploy to Vercel
 ```
+
+## Environment variables
+
+| Variable | Description |
+|---|---|
+| `APP_PIN` | PIN for login (also used as HMAC key for tokens) |
+| `TURSO_DATABASE_URL` | Turso database URL (`libsql://...`) |
+| `TURSO_AUTH_TOKEN` | Turso auth token |

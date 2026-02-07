@@ -34,14 +34,14 @@ interface ColruytProduct {
 async function getLatestFileName(): Promise<string> {
   const listUrl = `https://storage.googleapis.com/storage/v1/b/${GCS_BUCKET}/o?prefix=${GCS_PREFIX}2026&maxResults=100`;
   const res = await fetch(listUrl);
-  const data = await res.json() as { items?: { name: string }[] };
+  const data = (await res.json()) as { items?: { name: string }[] };
 
   if (!data.items || data.items.length === 0) {
     throw new Error("No product files found in GCS bucket");
   }
 
   // Names are YYYY-MM-DD format so sorting alphabetically gives chronological order
-  const sorted = data.items.map((i) => i.name).sort();
+  const sorted = data.items.map((i) => i.name).toSorted();
   return sorted[sorted.length - 1];
 }
 

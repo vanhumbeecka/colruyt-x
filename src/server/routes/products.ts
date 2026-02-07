@@ -24,7 +24,10 @@ router.get("/", async (req, res) => {
     params.push(category);
   }
 
-  const countResult = await db.execute({ sql: `SELECT COUNT(*) as total FROM products WHERE ${where}`, args: params });
+  const countResult = await db.execute({
+    sql: `SELECT COUNT(*) as total FROM products WHERE ${where}`,
+    args: params,
+  });
   const total = countResult.rows[0].total as number;
 
   const productsResult = await db.execute({
@@ -42,12 +45,17 @@ router.get("/", async (req, res) => {
 });
 
 router.get("/categories", async (_req, res) => {
-  const result = await db.execute("SELECT DISTINCT category_name FROM products WHERE category_name != '' ORDER BY category_name");
+  const result = await db.execute(
+    "SELECT DISTINCT category_name FROM products WHERE category_name != '' ORDER BY category_name",
+  );
   res.json(result.rows.map((c) => c.category_name));
 });
 
 router.get("/:id", async (req, res) => {
-  const result = await db.execute({ sql: "SELECT * FROM products WHERE id = ?", args: [req.params.id] });
+  const result = await db.execute({
+    sql: "SELECT * FROM products WHERE id = ?",
+    args: [req.params.id],
+  });
   if (result.rows.length === 0) {
     res.status(404).json({ error: "Product not found" });
     return;

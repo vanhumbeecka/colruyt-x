@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { api, type Product, type ProductsResponse } from "../api.ts";
+import { api, type Product, type ProductsResponse, type GroceryListItem } from "../api.ts";
 import ProductCard from "../components/ProductCard.tsx";
 
 export default function Products() {
@@ -9,6 +9,7 @@ export default function Products() {
   const [data, setData] = useState<ProductsResponse | null>(null);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [added, setAdded] = useState<string | null>(null);
 
   useEffect(() => {
     api.getCategories().then(setCategories).catch(console.error);
@@ -28,12 +29,29 @@ export default function Products() {
 
   useEffect(() => {
     search(query, page, category);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- search triggers on page/category change, not on every keystroke
   }, [page, category, search]);
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     setPage(1);
     search(query, 1, category);
+  }
+
+  async function handleAddToList(product: Product) {
+    const list = await api.getList();
+    const items: GroceryListItem[] = JSON.parse(list.items);
+    items.push({
+      name: product.long_name || product.name,
+      amount: "1",
+      unit: "",
+      checked: false,
+      productId: product.id,
+      price: product.price ?? undefined,
+    });
+    await api.updateList({ items });
+    setAdded(product.id);
+    setTimeout(() => setAdded(null), 1500);
   }
 
   return (
@@ -71,6 +89,8 @@ export default function Products() {
         </button>
       </form>
 
+      {added && <p className="text-sm text-green-600">Added to list!</p>}
+
       {loading && <p className="text-gray-500">Loading...</p>}
 
       {data && (
@@ -81,7 +101,7 @@ export default function Products() {
 
           <div className="grid gap-2 sm:grid-cols-2">
             {data.products.map((p: Product) => (
-              <ProductCard key={p.id} product={p} />
+              <ProductCard key={p.id} product={p} onAddToList={handleAddToList} />
             ))}
           </div>
 

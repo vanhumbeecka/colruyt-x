@@ -1,7 +1,7 @@
 {
   "name": "colruyt-x",
-  "private": true,
   "version": "0.0.1",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev": "concurrently \"vite\" \"tsx watch src/server/start.ts\"",
@@ -9,37 +9,49 @@
     "dev:server": "tsx watch src/server/start.ts",
     "build": "tsc -b && vite build",
     "start": "node --import tsx src/server/start.ts",
-    "import:products": "tsx scripts/import-products.ts"
+    "import:products": "tsx scripts/import-products.ts",
+    "test": "vitest run",
+    "lint": "oxlint --fix",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check"
   },
   "dependencies": {
     "@libsql/client": "^0.17.0",
-    "cors": "^2.8.6",
+    "cookie-parser": "^1.4.7",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-router": "^7.13.0",
-    "uuid": "^13.0.0"
+    "react-router": "^7.13.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.1",
     "@tailwindcss/vite": "^4.1.18",
-    "@types/cors": "^2.8.19",
+    "@types/cookie-parser": "^1.4.10",
     "@types/express": "^5.0.6",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
-    "@types/uuid": "^10.0.0",
+    "@types/supertest": "^6.0.3",
     "@vitejs/plugin-react": "^5.1.1",
     "concurrently": "^9.2.1",
-    "eslint": "^9.39.1",
-    "eslint-plugin-react-hooks": "^7.0.1",
-    "eslint-plugin-react-refresh": "^0.4.24",
-    "globals": "^16.5.0",
+    "lint-staged": "^16.2.7",
+    "oxfmt": "^0.28.0",
+    "oxlint": "^1.43.0",
+    "supertest": "^7.2.2",
     "tailwindcss": "^4.1.18",
     "tsx": "^4.21.0",
     "typescript": "~5.9.3",
-    "typescript-eslint": "^8.46.4",
-    "vite": "^7.2.4"
+    "vercel": "^50.12.3",
+    "vite": "^7.2.4",
+    "vitest": "^4.0.18"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "oxlint --fix",
+      "oxfmt"
+    ],
+    "*.{json,md,css}": [
+      "oxfmt --no-error-on-unmatched-pattern"
+    ]
   }
 }

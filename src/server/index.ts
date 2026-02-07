@@ -1,16 +1,13 @@
 import "dotenv/config";
 import express from "express";
-import cors from "cors";
-import { initDb } from "./db.js";
+import cookieParser from "cookie-parser";
+import db, { initDb } from "./db.js";
+import { verifyToken, getTokenFromRequest } from "./auth.js";
+import authRouter from "./routes/auth.js";
 import productsRouter from "./routes/products.js";
-import groceryListsRouter from "./routes/grocery-lists.js";
+import listRouter from "./routes/list.js";
 
 const app = express();
-const API_KEY = process.env.API_KEY;
-
-if (!API_KEY || API_KEY === "changeme") {
-  console.warn("WARNING: Set a real API_KEY in .env before deploying");
-}
 
 let dbInitialized = false;
 app.use(async (_req, _res, next) => {
@@ -21,12 +18,14 @@ app.use(async (_req, _res, next) => {
   next();
 });
 
-app.use(cors());
 app.use(express.json());
+app.use(cookieParser(process.env.APP_PIN));
+
+app.use("/api/auth", authRouter);
 
 app.use("/api", (req, res, next) => {
-  const auth = req.headers.authorization;
-  if (!auth || auth !== `Bearer ${API_KEY}`) {
+  const token = getTokenFromRequest(req);
+  if (!token || !verifyToken(token)) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
@@ -34,6 +33,6 @@ app.use("/api", (req, res, next) => {
 });
 
 app.use("/api/products", productsRouter);
-app.use("/api/grocery-lists", groceryListsRouter);
+app.use("/api/list", listRouter(db));
 
 export default app;

@@ -1,11 +1,9 @@
-const API_KEY = import.meta.env.VITE_API_KEY || "";
-
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, {
     ...init,
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${API_KEY}`,
       ...init?.headers,
     },
   });
@@ -61,31 +59,37 @@ export interface GroceryList {
 }
 
 export const api = {
+  // Auth
+  login: (pin: string) =>
+    apiFetch<{ ok: boolean; token: string }>("/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ pin }),
+    }),
+
+  logout: () => apiFetch<{ ok: boolean }>("/api/auth/logout", { method: "POST" }),
+
+  checkAuth: () => apiFetch<{ authenticated: boolean }>("/api/auth/check"),
+
+  // List
+  getList: () => apiFetch<GroceryList>("/api/list"),
+
+  updateList: (data: { items?: GroceryListItem[]; notes?: string }) =>
+    apiFetch<GroceryList>("/api/list", {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
+  clearChecked: () => apiFetch<GroceryList>("/api/list/clear-checked", { method: "POST" }),
+
+  resetList: () => apiFetch<GroceryList>("/api/list/reset", { method: "POST" }),
+
+  // Products
   searchProducts: (q: string, page = 1, limit = 20, category = "") =>
     apiFetch<ProductsResponse>(
-      `/api/products?q=${encodeURIComponent(q)}&page=${page}&limit=${limit}&category=${encodeURIComponent(category)}`
+      `/api/products?q=${encodeURIComponent(q)}&page=${page}&limit=${limit}&category=${encodeURIComponent(category)}`,
     ),
 
   getProduct: (id: string) => apiFetch<Product>(`/api/products/${id}`),
 
   getCategories: () => apiFetch<string[]>("/api/products/categories"),
-
-  getGroceryLists: () => apiFetch<GroceryList[]>("/api/grocery-lists"),
-
-  getGroceryList: (id: string) => apiFetch<GroceryList>(`/api/grocery-lists/${id}`),
-
-  createGroceryList: (data: { name: string; items: GroceryListItem[]; notes?: string }) =>
-    apiFetch<GroceryList>("/api/grocery-lists", {
-      method: "POST",
-      body: JSON.stringify(data),
-    }),
-
-  updateGroceryList: (id: string, data: Partial<{ name: string; items: GroceryListItem[]; notes: string }>) =>
-    apiFetch<GroceryList>(`/api/grocery-lists/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(data),
-    }),
-
-  deleteGroceryList: (id: string) =>
-    apiFetch<void>(`/api/grocery-lists/${id}`, { method: "DELETE" }),
 };
