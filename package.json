@@ -12,8 +12,7 @@
     "import:products": "tsx scripts/import-products.ts",
     "test": "vitest run",
     "lint": "oxlint --fix",
-    "fmt": "oxfmt",
-    "fmt:check": "oxfmt --check"
+    "fmt": "oxfmt"
   },
   "dependencies": {
     "@libsql/client": "^0.17.0",

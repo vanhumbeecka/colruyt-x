@@ -7,7 +7,7 @@ lint:
 	npm run lint
 
 fmt:
-	npm run fmt:check
+	npm run fmt
 
 build:
 	npm run build

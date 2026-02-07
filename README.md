@@ -39,8 +39,8 @@ make deploy              # Test + lint + format check + build + deploy to Vercel
 
 ## Environment variables
 
-| Variable | Description |
-|---|---|
-| `APP_PIN` | PIN for login (also used as HMAC key for tokens) |
-| `TURSO_DATABASE_URL` | Turso database URL (`libsql://...`) |
-| `TURSO_AUTH_TOKEN` | Turso auth token |
+| Variable             | Description                                      |
+| -------------------- | ------------------------------------------------ |
+| `APP_PIN`            | PIN for login (also used as HMAC key for tokens) |
+| `TURSO_DATABASE_URL` | Turso database URL (`libsql://...`)              |
+| `TURSO_AUTH_TOKEN`   | Turso auth token                                 |

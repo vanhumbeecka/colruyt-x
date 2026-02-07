@@ -11,7 +11,8 @@
     "react/jsx-key": "error",
     "no-unused-vars": "off",
     "typescript/no-unused-vars": "warn",
-    "react/react-in-jsx-scope": "off"
+    "react/react-in-jsx-scope": "off",
+    "unicorn/no-array-sort": "off"
   },
   "overrides": [
     {

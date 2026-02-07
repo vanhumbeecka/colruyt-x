@@ -6,6 +6,7 @@ import { verifyToken, getTokenFromRequest } from "./auth.js";
 import authRouter from "./routes/auth.js";
 import productsRouter from "./routes/products.js";
 import listRouter from "./routes/list.js";
+import cronRouter from "./routes/cron.js";
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use(express.json());
 app.use(cookieParser(process.env.APP_PIN));
 
 app.use("/api/auth", authRouter);
+app.use("/api/cron", cronRouter);
 
 app.use("/api", (req, res, next) => {
   const token = getTokenFromRequest(req);
