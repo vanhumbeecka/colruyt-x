@@ -27,6 +27,8 @@ describe("cron routes", () => {
   beforeEach(() => {
     app = createApp();
     vi.clearAllMocks();
+    vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
   describe("GET /api/cron/import-products", () => {
@@ -34,6 +36,7 @@ describe("cron routes", () => {
       const res = await request(app).get("/api/cron/import-products");
       expect(res.status).toBe(401);
       expect(res.body.error).toBe("Unauthorized");
+      expect(console.error).toHaveBeenCalledWith(expect.stringContaining("Unauthorized"));
     });
 
     it("rejects requests with wrong secret", async () => {
@@ -51,6 +54,9 @@ describe("cron routes", () => {
       expect(res.status).toBe(200);
       expect(res.body.ok).toBe(true);
       expect(res.body.count).toBe(2);
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining("Done — imported 2 products"),
+      );
     });
 
     it("returns 500 on import failure", async () => {
@@ -63,6 +69,7 @@ describe("cron routes", () => {
       expect(res.status).toBe(500);
       expect(res.body.ok).toBe(false);
       expect(res.body.error).toBe("GCS down");
+      expect(console.error).toHaveBeenCalledWith(expect.stringContaining("Failed: GCS down"));
     });
   });
 });
