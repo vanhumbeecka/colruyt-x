@@ -26,6 +26,8 @@ export interface Product {
   price: number | null;
   unit_price: number | null;
   measurement_unit: string | null;
+  quantity_price: number | null;
+  quantity_price_quantity: number | null;
   category_name: string | null;
   is_promo: number;
   is_bio: number;
@@ -39,23 +41,53 @@ export interface ProductsResponse {
   totalPages: number;
 }
 
-export interface GroceryListItem {
+export interface WatchlistItem {
+  product_id: string;
+  added_at: string;
   name: string;
-  amount: string;
-  unit: string;
-  category?: string;
-  checked: boolean;
-  productId?: string;
-  price?: number;
+  long_name: string | null;
+  brand: string | null;
+  content: string | null;
+  thumbnail_url: string | null;
+  full_image_url: string | null;
+  price: number | null;
+  unit_price: number | null;
+  measurement_unit: string | null;
+  quantity_price: number | null;
+  quantity_price_quantity: number | null;
+  category_name: string | null;
+  is_promo: number;
+  is_bio: number;
 }
 
-export interface GroceryList {
-  id: string;
-  name: string;
-  created_at: string;
-  updated_at: string;
-  items: string;
-  notes: string | null;
+export interface Deal {
+  quantity: number;
+  unitPrice: number;
+  discountPct: number;
+}
+
+// Mirrors the server's computeDeal: a volume deal is a positive per-item price
+// below the basic price with a "buy N" quantity present.
+export function getDeal(p: {
+  price: number | null;
+  quantity_price: number | null;
+  quantity_price_quantity: number | null;
+}): Deal | null {
+  if (
+    p.price == null ||
+    p.quantity_price == null ||
+    p.quantity_price_quantity == null ||
+    p.quantity_price <= 0 ||
+    p.quantity_price >= p.price ||
+    p.quantity_price_quantity <= 0
+  ) {
+    return null;
+  }
+  return {
+    quantity: p.quantity_price_quantity,
+    unitPrice: p.quantity_price,
+    discountPct: (p.price - p.quantity_price) / p.price,
+  };
 }
 
 export const api = {
@@ -70,18 +102,17 @@ export const api = {
 
   checkAuth: () => apiFetch<{ authenticated: boolean }>("/api/auth/check"),
 
-  // List
-  getList: () => apiFetch<GroceryList>("/api/list"),
+  // Watchlist
+  getWatchlist: () => apiFetch<WatchlistItem[]>("/api/watchlist"),
 
-  updateList: (data: { items?: GroceryListItem[]; notes?: string }) =>
-    apiFetch<GroceryList>("/api/list", {
-      method: "PUT",
-      body: JSON.stringify(data),
+  addToWatchlist: (productId: string) =>
+    apiFetch<{ ok: boolean }>("/api/watchlist", {
+      method: "POST",
+      body: JSON.stringify({ productId }),
     }),
 
-  clearChecked: () => apiFetch<GroceryList>("/api/list/clear-checked", { method: "POST" }),
-
-  resetList: () => apiFetch<GroceryList>("/api/list/reset", { method: "POST" }),
+  removeFromWatchlist: (productId: string) =>
+    apiFetch<{ ok: boolean }>(`/api/watchlist/${productId}`, { method: "DELETE" }),
 
   // Products
   searchProducts: (q: string, page = 1, limit = 20, category = "") =>

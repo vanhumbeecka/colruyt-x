@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Link } from "react-router";
 import { api } from "./api.ts";
 import Login from "./pages/Login.tsx";
-import Home from "./pages/Home.tsx";
+import Watchlist from "./pages/Watchlist.tsx";
 import Products from "./pages/Products.tsx";
 
 export default function App() {
@@ -47,7 +47,7 @@ export default function App() {
         </nav>
         <main className="max-w-5xl mx-auto px-4 py-6">
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<Watchlist />} />
             <Route path="/products" element={<Products />} />
           </Routes>
         </main>

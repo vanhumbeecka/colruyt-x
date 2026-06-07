@@ -1,4 +1,4 @@
-import type { Product } from "../api.ts";
+import { getDeal, type Product } from "../api.ts";
 
 export default function ProductCard({
   product,
@@ -44,6 +44,14 @@ export default function ProductCard({
           {product.is_promo === 1 && (
             <span className="text-xs bg-red-100 text-red-700 px-1 rounded">Promo</span>
           )}
+          {(() => {
+            const deal = getDeal(product);
+            return deal ? (
+              <span className="text-xs bg-green-100 text-green-700 px-1 rounded">
+                {`Buy ${deal.quantity}: €${deal.unitPrice.toFixed(2)} (-${Math.round(deal.discountPct * 100)}%)`}
+              </span>
+            ) : null;
+          })()}
         </div>
       </div>
       {onAddToList && (
