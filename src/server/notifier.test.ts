@@ -54,16 +54,12 @@ describe("TelegramNotifier", () => {
 
   it("throws when the bot token is missing", async () => {
     delete process.env.TELEGRAM_BOT_TOKEN;
-    await expect(new TelegramNotifier().notify([event()])).rejects.toThrow(
-      "TELEGRAM_BOT_TOKEN",
-    );
+    await expect(new TelegramNotifier().notify([event()])).rejects.toThrow("TELEGRAM_BOT_TOKEN");
   });
 
   it("throws when no chat ids are configured", async () => {
     process.env.TELEGRAM_CHAT_IDS = "";
-    await expect(new TelegramNotifier().notify([event()])).rejects.toThrow(
-      "TELEGRAM_CHAT_IDS",
-    );
+    await expect(new TelegramNotifier().notify([event()])).rejects.toThrow("TELEGRAM_CHAT_IDS");
   });
 
   it("sends one sendMessage per chat id when there is no image", async () => {
@@ -93,9 +89,7 @@ describe("TelegramNotifier", () => {
   });
 
   it("throws when Telegram responds with a non-ok status", async () => {
-    vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response("nope", { status: 400 }),
-    );
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response("nope", { status: 400 }));
     await expect(new TelegramNotifier().notify([event()])).rejects.toThrow(
       "Telegram send failed: 400",
     );

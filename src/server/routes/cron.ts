@@ -41,7 +41,9 @@ export default function cronRouter(db: Client, notifier: Notifier) {
       }
       await saveDealStates(db, watched, new Date().toISOString());
 
-      console.log(`[cron/import-products] Done — ${products.length} products, ${events.length} events`);
+      console.log(
+        `[cron/import-products] Done — ${products.length} products, ${events.length} events`,
+      );
       res.json({ ok: true, count: products.length, events: events.length });
     } catch (err) {
       const message = err instanceof Error ? err.message : "Unknown error";

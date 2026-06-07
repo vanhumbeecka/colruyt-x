@@ -61,8 +61,7 @@ export function detectDeals(
 
     const prior = priorState.get(p.productId);
     const onset = !prior || !prior.onDeal;
-    const improved =
-      !onset && prior.unitPrice != null && deal.unitPrice! < prior.unitPrice;
+    const improved = !onset && prior.unitPrice != null && deal.unitPrice! < prior.unitPrice;
 
     if (!onset && !improved) continue;
 

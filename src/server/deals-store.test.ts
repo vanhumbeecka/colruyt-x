@@ -44,9 +44,7 @@ describe("deals-store", () => {
   });
 
   it("round-trips deal states through save and load", async () => {
-    await db.execute(
-      "INSERT INTO products VALUES ('p1','Appel','Appel',1.89,1.74,3,'f.jpg')",
-    );
+    await db.execute("INSERT INTO products VALUES ('p1','Appel','Appel',1.89,1.74,3,'f.jpg')");
     await db.execute("INSERT INTO products VALUES ('p2','Bread','Bread',2,NULL,NULL,NULL)");
     await db.execute("INSERT INTO watchlist_items VALUES ('p1','2026-06-07')");
     await db.execute("INSERT INTO watchlist_items VALUES ('p2','2026-06-07')");
@@ -70,13 +68,9 @@ describe("deals-store", () => {
   });
 
   it("overwrites a prior deal state on re-save", async () => {
-    await db.execute(
-      "INSERT INTO products VALUES ('p1','Appel','Appel',1.89,1.74,3,'f.jpg')",
-    );
+    await db.execute("INSERT INTO products VALUES ('p1','Appel','Appel',1.89,1.74,3,'f.jpg')");
     await db.execute("INSERT INTO watchlist_items VALUES ('p1','2026-06-07')");
-    await db.execute(
-      "INSERT INTO deal_state VALUES ('p1',1,3,1.80,'2026-06-06T06:00:00.000Z')",
-    );
+    await db.execute("INSERT INTO deal_state VALUES ('p1',1,3,1.80,'2026-06-06T06:00:00.000Z')");
 
     const watched = await loadWatchedProducts(db);
     await saveDealStates(db, watched, "2026-06-07T06:00:00.000Z");

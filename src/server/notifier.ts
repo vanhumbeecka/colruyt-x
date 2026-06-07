@@ -25,8 +25,7 @@ export class TelegramNotifier implements Notifier {
       .filter(Boolean);
 
     if (!token) throw new Error("TELEGRAM_BOT_TOKEN environment variable is required");
-    if (chatIds.length === 0)
-      throw new Error("TELEGRAM_CHAT_IDS environment variable is required");
+    if (chatIds.length === 0) throw new Error("TELEGRAM_CHAT_IDS environment variable is required");
 
     for (const event of events) {
       const text = formatEvent(event);
