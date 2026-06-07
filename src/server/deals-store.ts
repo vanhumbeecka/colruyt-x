@@ -18,6 +18,9 @@ export async function loadWatchedProducts(db: Client): Promise<WatchedProduct[]>
   }));
 }
 
+// Returns only the fields detectDeals compares (on_deal / quantity / unit_price).
+// notified_at is persisted for the record but intentionally not surfaced here:
+// notification idempotency is driven by deal-state comparison, not timestamps.
 export async function loadDealStates(db: Client): Promise<Map<string, DealState>> {
   const result = await db.execute("SELECT * FROM deal_state");
   const map = new Map<string, DealState>();

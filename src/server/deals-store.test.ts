@@ -84,4 +84,10 @@ describe("deals-store", () => {
     const states = await loadDealStates(db);
     expect(states.get("p1")!.unitPrice).toBe(1.74);
   });
+
+  it("is a no-op when there are no watched products", async () => {
+    await saveDealStates(db, [], "2026-06-07T06:00:00.000Z");
+    const states = await loadDealStates(db);
+    expect(states.size).toBe(0);
+  });
 });
