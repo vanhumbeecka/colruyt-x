@@ -4,8 +4,7 @@ vi.mock("./db.js", () => ({
   default: { batch: vi.fn() },
 }));
 
-import { getLatestFileName, downloadProducts } from "./import-products.js";
-import { productToArgs } from "./import-products.js";
+import { getLatestFileName, downloadProducts, productToArgs } from "./import-products.js";
 
 const GCS_BUCKET = "colruyt-products";
 const GCS_PREFIX = "colruyt-products/";
@@ -112,6 +111,7 @@ describe("productToArgs", () => {
     // quantity_price(12), quantity_price_quantity(13) ...
     expect(args[12]).toBe(1.74);
     expect(args[13]).toBe(3);
+    expect(args).toHaveLength(21);
   });
 
   it("maps null quantityPriceQuantity when absent", () => {
@@ -131,7 +131,7 @@ describe("productToArgs", () => {
           measurementUnit: "ST",
           measurementUnitPrice: 2,
           quantityPrice: 0,
-        } as never,
+        },
         topCategoryId: "",
         topCategoryName: "",
         CountryOfOrigin: "",
@@ -142,5 +142,6 @@ describe("productToArgs", () => {
       "2026-06-07T00:00:00.000Z",
     );
     expect(args[13]).toBeNull();
+    expect(args).toHaveLength(21);
   });
 });
