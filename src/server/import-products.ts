@@ -1,4 +1,4 @@
-import type { InStatement } from "@libsql/client";
+import type { InStatement, InValue } from "@libsql/client";
 import db from "./db.js";
 
 const GCS_BUCKET = "colruyt-products";
@@ -9,6 +9,7 @@ interface ColruytPrice {
   measurementUnit: string;
   measurementUnitPrice: number;
   quantityPrice: number;
+  quantityPriceQuantity?: number;
 }
 
 interface ColruytProduct {
@@ -55,13 +56,13 @@ const UPSERT_SQL = `
   INSERT INTO products (
     id, name, long_name, short_name, brand, content,
     thumbnail_url, square_image_url, full_image_url,
-    price, unit_price, measurement_unit, quantity_price,
+    price, unit_price, measurement_unit, quantity_price, quantity_price_quantity,
     category_id, category_name, country_of_origin,
     is_bio, is_promo, is_available, last_updated
   ) VALUES (
     ?, ?, ?, ?, ?, ?,
     ?, ?, ?,
-    ?, ?, ?, ?,
+    ?, ?, ?, ?, ?,
     ?, ?, ?,
     ?, ?, ?, ?
   )
@@ -72,39 +73,45 @@ const UPSERT_SQL = `
     square_image_url=excluded.square_image_url, full_image_url=excluded.full_image_url,
     price=excluded.price, unit_price=excluded.unit_price,
     measurement_unit=excluded.measurement_unit, quantity_price=excluded.quantity_price,
+    quantity_price_quantity=excluded.quantity_price_quantity,
     category_id=excluded.category_id, category_name=excluded.category_name,
     country_of_origin=excluded.country_of_origin,
     is_bio=excluded.is_bio, is_promo=excluded.is_promo,
     is_available=excluded.is_available, last_updated=excluded.last_updated
 `;
 
+export function productToArgs(p: ColruytProduct, now: string): InValue[] {
+  return [
+    p.productId,
+    p.name,
+    p.LongName || null,
+    p.ShortName || null,
+    p.brand || null,
+    p.content || null,
+    p.thumbNail || null,
+    p.squareImage || null,
+    p.fullImage || null,
+    p.price?.basicPrice ?? null,
+    p.price?.measurementUnitPrice ?? null,
+    p.price?.measurementUnit || null,
+    p.price?.quantityPrice ?? null,
+    p.price?.quantityPriceQuantity ?? null,
+    p.topCategoryId || null,
+    p.topCategoryName || null,
+    p.CountryOfOrigin || null,
+    p.IsBio ? 1 : 0,
+    p.inPromo ? 1 : 0,
+    p.isAvailable ? 1 : 0,
+    now,
+  ];
+}
+
 export async function importProducts(products: ColruytProduct[]) {
   const now = new Date().toISOString();
 
   const statements: InStatement[] = products.map((p) => ({
     sql: UPSERT_SQL,
-    args: [
-      p.productId,
-      p.name,
-      p.LongName || null,
-      p.ShortName || null,
-      p.brand || null,
-      p.content || null,
-      p.thumbNail || null,
-      p.squareImage || null,
-      p.fullImage || null,
-      p.price?.basicPrice ?? null,
-      p.price?.measurementUnitPrice ?? null,
-      p.price?.measurementUnit || null,
-      p.price?.quantityPrice ?? null,
-      p.topCategoryId || null,
-      p.topCategoryName || null,
-      p.CountryOfOrigin || null,
-      p.IsBio ? 1 : 0,
-      p.inPromo ? 1 : 0,
-      p.isAvailable ? 1 : 0,
-      now,
-    ],
+    args: productToArgs(p, now),
   }));
 
   await db.batch(statements, "write");

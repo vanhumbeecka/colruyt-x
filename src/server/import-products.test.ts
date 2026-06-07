@@ -5,6 +5,7 @@ vi.mock("./db.js", () => ({
 }));
 
 import { getLatestFileName, downloadProducts } from "./import-products.js";
+import { productToArgs } from "./import-products.js";
 
 const GCS_BUCKET = "colruyt-products";
 const GCS_PREFIX = "colruyt-products/";
@@ -74,5 +75,72 @@ describe("import-products", () => {
         "Failed to download: 404",
       );
     });
+  });
+});
+
+describe("productToArgs", () => {
+  it("maps quantityPriceQuantity into the args", () => {
+    const now = "2026-06-07T00:00:00.000Z";
+    const args = productToArgs(
+      {
+        productId: "p1",
+        name: "Appel Jonagold",
+        LongName: "Appel Jonagold 1kg",
+        ShortName: "Appel",
+        brand: "Boni",
+        content: "1kg",
+        thumbNail: "t.jpg",
+        squareImage: "s.jpg",
+        fullImage: "f.jpg",
+        price: {
+          basicPrice: 1.89,
+          measurementUnit: "K",
+          measurementUnitPrice: 1.89,
+          quantityPrice: 1.74,
+          quantityPriceQuantity: 3,
+        },
+        topCategoryId: "c1",
+        topCategoryName: "Fruit",
+        CountryOfOrigin: "BE",
+        IsBio: false,
+        inPromo: false,
+        isAvailable: true,
+      },
+      now,
+    );
+    // column order: ... price(9), unit_price(10), measurement_unit(11),
+    // quantity_price(12), quantity_price_quantity(13) ...
+    expect(args[12]).toBe(1.74);
+    expect(args[13]).toBe(3);
+  });
+
+  it("maps null quantityPriceQuantity when absent", () => {
+    const args = productToArgs(
+      {
+        productId: "p2",
+        name: "Bread",
+        LongName: "Bread",
+        ShortName: "Bread",
+        brand: "",
+        content: "",
+        thumbNail: "",
+        squareImage: "",
+        fullImage: "",
+        price: {
+          basicPrice: 2,
+          measurementUnit: "ST",
+          measurementUnitPrice: 2,
+          quantityPrice: 0,
+        } as never,
+        topCategoryId: "",
+        topCategoryName: "",
+        CountryOfOrigin: "",
+        IsBio: false,
+        inPromo: false,
+        isAvailable: true,
+      },
+      "2026-06-07T00:00:00.000Z",
+    );
+    expect(args[13]).toBeNull();
   });
 });
