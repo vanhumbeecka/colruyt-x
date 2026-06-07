@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { api, type Product, type ProductsResponse, type GroceryListItem } from "../api.ts";
+import { api, type Product, type ProductsResponse } from "../api.ts";
 import ProductCard from "../components/ProductCard.tsx";
 
 export default function Products() {
@@ -38,20 +38,14 @@ export default function Products() {
     search(query, 1, category);
   }
 
-  async function handleAddToList(product: Product) {
-    const list = await api.getList();
-    const items: GroceryListItem[] = JSON.parse(list.items);
-    items.push({
-      name: product.long_name || product.name,
-      amount: "1",
-      unit: "",
-      checked: false,
-      productId: product.id,
-      price: product.price ?? undefined,
-    });
-    await api.updateList({ items });
-    setAdded(product.id);
-    setTimeout(() => setAdded(null), 1500);
+  async function handleAddToWatchlist(product: Product) {
+    try {
+      await api.addToWatchlist(product.id);
+      setAdded(product.id);
+      setTimeout(() => setAdded(null), 1500);
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   return (
@@ -89,7 +83,7 @@ export default function Products() {
         </button>
       </form>
 
-      {added && <p className="text-sm text-green-600">Added to list!</p>}
+      {added && <p className="text-sm text-green-600">Added to watchlist!</p>}
 
       {loading && <p className="text-gray-500">Loading...</p>}
 
@@ -101,7 +95,7 @@ export default function Products() {
 
           <div className="grid gap-2 sm:grid-cols-2">
             {data.products.map((p: Product) => (
-              <ProductCard key={p.id} product={p} onAddToList={handleAddToList} />
+              <ProductCard key={p.id} product={p} onAddToWatchlist={handleAddToWatchlist} />
             ))}
           </div>
 

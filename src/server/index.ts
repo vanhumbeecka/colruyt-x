@@ -5,8 +5,9 @@ import db, { initDb } from "./db.js";
 import { verifyToken, getTokenFromRequest } from "./auth.js";
 import authRouter from "./routes/auth.js";
 import productsRouter from "./routes/products.js";
-import listRouter from "./routes/list.js";
+import watchlistRouter from "./routes/watchlist.js";
 import cronRouter from "./routes/cron.js";
+import { TelegramNotifier } from "./notifier.js";
 
 const app = express();
 
@@ -23,7 +24,8 @@ app.use(express.json());
 app.use(cookieParser(process.env.APP_PIN));
 
 app.use("/api/auth", authRouter);
-app.use("/api/cron", cronRouter);
+const notifier = new TelegramNotifier();
+app.use("/api/cron", cronRouter(db, notifier));
 
 app.use("/api", (req, res, next) => {
   const token = getTokenFromRequest(req);
@@ -35,6 +37,6 @@ app.use("/api", (req, res, next) => {
 });
 
 app.use("/api/products", productsRouter);
-app.use("/api/list", listRouter(db));
+app.use("/api/watchlist", watchlistRouter(db));
 
 export default app;

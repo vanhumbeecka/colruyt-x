@@ -21,6 +21,7 @@ export async function initDb() {
       unit_price       REAL,
       measurement_unit TEXT,
       quantity_price   REAL,
+      quantity_price_quantity REAL,
       category_id      TEXT,
       category_name    TEXT,
       country_of_origin TEXT,
@@ -30,20 +31,34 @@ export async function initDb() {
       last_updated     TEXT
     );
 
-    CREATE TABLE IF NOT EXISTS grocery_lists (
-      id         TEXT PRIMARY KEY,
-      name       TEXT NOT NULL,
-      created_at TEXT NOT NULL,
-      updated_at TEXT NOT NULL,
-      items      TEXT NOT NULL,
-      notes      TEXT
+    CREATE TABLE IF NOT EXISTS watchlist_items (
+      product_id TEXT PRIMARY KEY,
+      added_at   TEXT NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS deal_state (
+      product_id  TEXT PRIMARY KEY,
+      on_deal     INTEGER NOT NULL DEFAULT 0,
+      quantity    REAL,
+      unit_price  REAL,
+      notified_at TEXT
+    );
+
+    DROP TABLE IF EXISTS grocery_lists;
 
     CREATE INDEX IF NOT EXISTS idx_products_name ON products(name);
     CREATE INDEX IF NOT EXISTS idx_products_long_name ON products(long_name);
     CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_name);
     CREATE INDEX IF NOT EXISTS idx_products_brand ON products(brand);
   `);
+
+  // Existing prod DBs created before quantity_price_quantity: CREATE IF NOT EXISTS is a
+  // no-op, so add the column if the live table is missing it.
+  const cols = await db.execute("PRAGMA table_info(products)");
+  const hasQpq = cols.rows.some((r) => r.name === "quantity_price_quantity");
+  if (!hasQpq) {
+    await db.execute("ALTER TABLE products ADD COLUMN quantity_price_quantity REAL");
+  }
 }
 
 export default db;

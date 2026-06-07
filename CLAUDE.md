@@ -35,6 +35,9 @@ Requires a `.env` file with:
 - `APP_PIN` — PIN for login (used as cookie-parser secret and HMAC key for tokens)
 - `TURSO_DATABASE_URL` — Turso database URL (`libsql://...`)
 - `TURSO_AUTH_TOKEN` — Turso auth token
+- `CRON_SECRET` — Bearer secret the Vercel cron presents to `/api/cron/import-products`
+- `TELEGRAM_BOT_TOKEN` — Telegram bot token used to send sale notifications
+- `TELEGRAM_CHAT_IDS` — comma-separated Telegram chat IDs to notify
 
 ## Architecture
 
