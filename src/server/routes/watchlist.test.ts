@@ -110,4 +110,16 @@ describe("watchlist routes", () => {
     const res = await request(app).get("/api/watchlist").set("Authorization", `Bearer ${token}`);
     expect(res.body).toEqual([]);
   });
+
+  it("rejects unauthenticated access", async () => {
+    const res = await request(app).get("/api/watchlist");
+    expect(res.status).toBe(401);
+  });
+
+  it("returns ok when deleting a product not on the list (idempotent)", async () => {
+    const res = await request(app)
+      .delete("/api/watchlist/does-not-exist")
+      .set("Authorization", `Bearer ${token}`);
+    expect(res.status).toBe(200);
+  });
 });
