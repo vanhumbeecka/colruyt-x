@@ -39,9 +39,13 @@ export default function Products() {
   }
 
   async function handleAddToWatchlist(product: Product) {
-    await api.addToWatchlist(product.id);
-    setAdded(product.id);
-    setTimeout(() => setAdded(null), 1500);
+    try {
+      await api.addToWatchlist(product.id);
+      setAdded(product.id);
+      setTimeout(() => setAdded(null), 1500);
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   return (
@@ -91,7 +95,7 @@ export default function Products() {
 
           <div className="grid gap-2 sm:grid-cols-2">
             {data.products.map((p: Product) => (
-              <ProductCard key={p.id} product={p} onAddToList={handleAddToWatchlist} />
+              <ProductCard key={p.id} product={p} onAddToWatchlist={handleAddToWatchlist} />
             ))}
           </div>
 

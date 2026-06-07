@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router";
-import { api, getDeal, type WatchlistItem } from "../api.ts";
+import { api, getDeal, formatDeal, type WatchlistItem } from "../api.ts";
 
 export default function Watchlist() {
   const [items, setItems] = useState<WatchlistItem[]>([]);
@@ -21,8 +21,14 @@ export default function Watchlist() {
   }, [load]);
 
   async function remove(productId: string) {
-    await api.removeFromWatchlist(productId);
-    setItems((prev) => prev.filter((i) => i.product_id !== productId));
+    const prev = items;
+    setItems((s) => s.filter((i) => i.product_id !== productId));
+    try {
+      await api.removeFromWatchlist(productId);
+    } catch (err) {
+      console.error(err);
+      setItems(prev);
+    }
   }
 
   if (loading) return <p className="text-gray-500">Loading...</p>;
@@ -70,7 +76,7 @@ export default function Watchlist() {
                   )}
                   {deal ? (
                     <span className="text-xs bg-green-100 text-green-700 px-1 rounded">
-                      {`Buy ${deal.quantity}: €${deal.unitPrice.toFixed(2)} (-${Math.round(deal.discountPct * 100)}%)`}
+                      {formatDeal(deal)}
                     </span>
                   ) : (
                     <span className="text-xs text-gray-400">No deal</span>
@@ -81,6 +87,7 @@ export default function Watchlist() {
                 onClick={() => remove(item.product_id)}
                 className="text-gray-400 hover:text-red-500 text-sm"
                 title="Remove from watchlist"
+                aria-label="Remove from watchlist"
               >
                 ×
               </button>

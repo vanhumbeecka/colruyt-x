@@ -90,6 +90,10 @@ export function getDeal(p: {
   };
 }
 
+export function formatDeal(deal: Deal): string {
+  return `Buy ${deal.quantity}: €${deal.unitPrice.toFixed(2)} (-${Math.round(deal.discountPct * 100)}%)`;
+}
+
 export const api = {
   // Auth
   login: (pin: string) =>
