@@ -59,6 +59,13 @@ describe("TelegramNotifier", () => {
     );
   });
 
+  it("throws when no chat ids are configured", async () => {
+    process.env.TELEGRAM_CHAT_IDS = "";
+    await expect(new TelegramNotifier().notify([event()])).rejects.toThrow(
+      "TELEGRAM_CHAT_IDS",
+    );
+  });
+
   it("sends one sendMessage per chat id when there is no image", async () => {
     const fetchSpy = vi
       .spyOn(globalThis, "fetch")

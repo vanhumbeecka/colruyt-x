@@ -54,7 +54,7 @@ export class TelegramNotifier implements Notifier {
       body: JSON.stringify(body),
     });
     if (!res.ok) {
-      throw new Error(`Telegram send failed: ${res.status}`);
+      throw new Error(`Telegram send failed: ${res.status} ${res.statusText}`);
     }
   }
 }
