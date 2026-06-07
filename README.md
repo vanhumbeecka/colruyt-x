@@ -44,3 +44,7 @@ make deploy              # Test + lint + format check + build + deploy to Vercel
 | `APP_PIN`            | PIN for login (also used as HMAC key for tokens) |
 | `TURSO_DATABASE_URL` | Turso database URL (`libsql://...`)              |
 | `TURSO_AUTH_TOKEN`   | Turso auth token                                 |
+
+## TODO
+
+Outstanding follow-ups (operational setup, robustness, and docs) are tracked in [TODO.md](./TODO.md).
