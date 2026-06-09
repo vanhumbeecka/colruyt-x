@@ -2,7 +2,9 @@
 
 Sale-notification service for two people, built on Colruyt product data. Maintain a shared **watchlist** of products and get a **Telegram** message when a watched product enters or improves a volume deal ("buy N, pay X each"). Full-stack TypeScript: React SPA + Express API backed by [Turso](https://turso.tech/) (libSQL).
 
-Live at **https://colruyt-x.vercel.app/**
+## Screenshots
+
+<!-- TODO: add screenshots of the watchlist, product search, and a Telegram notification -->
 
 ## How it works
 
@@ -31,6 +33,17 @@ npm install
 npm run import:products # populate the database with Colruyt product data
 npm run dev             # starts client (Vite) + server (tsx watch) concurrently
 ```
+
+## Self-hosting
+
+The app is built to deploy on [Vercel](https://vercel.com/) (SPA static files + a serverless API function + a daily cron). To run your own instance:
+
+1. **Database** — create a [Turso](https://turso.tech/) database and grab its URL and auth token.
+2. **Telegram** — create a bot via [@BotFather](https://t.me/BotFather) for `TELEGRAM_BOT_TOKEN`, and collect the chat IDs to notify into `TELEGRAM_CHAT_IDS`.
+3. **Deploy** — import the repo into Vercel, set the [environment variables](#environment-variables) in the project dashboard, and deploy (or run `make deploy` locally with the Vercel CLI linked).
+4. **Seed data** — run `npm run import:products` once to populate the catalog. The daily cron (`/api/cron/import-products`, configured in `vercel.json`) keeps it fresh and sends notifications.
+
+See the [architecture overview](https://vanhumbeecka.github.io/colruyt-x/) for a deeper walkthrough of the components and data flow.
 
 ## Commands
 
