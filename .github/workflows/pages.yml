@@ -1,0 +1,40 @@
+name: Deploy architecture page
+
+# Publishes ONLY docs/architecture.html to GitHub Pages (served at the site root).
+# Nothing else from /docs (specs, plans) is included in the artifact.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - docs/architecture.html
+      - .github/workflows/pages.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assemble site (architecture page only)
+        run: |
+          mkdir -p _site
+          cp docs/architecture.html _site/index.html
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4

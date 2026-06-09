@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Colruyt-X — Architecture</title>
+    <style>
+      :root {
+        --ink: #1f2937;
+        --muted: #6b7280;
+        --line: #e5e7eb;
+        --amber: #f59e0b;
+        --teal: #0d9488;
+        --blue: #2563eb;
+        --slate: #475569;
+        --bg: #f8fafc;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+          sans-serif;
+        color: var(--ink);
+        background: var(--bg);
+      }
+      .wrap {
+        max-width: 1040px;
+        margin: 0 auto;
+        padding: 48px 24px 80px;
+      }
+      header h1 {
+        margin: 0 0 8px;
+        font-size: 32px;
+        letter-spacing: -0.02em;
+      }
+      header .tag {
+        display: inline-block;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--amber);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 12px;
+      }
+      .lede {
+        font-size: 18px;
+        color: var(--slate);
+        max-width: 760px;
+      }
+      .card {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 24px;
+        margin: 32px 0;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+      }
+      .diagram svg {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+      h2 {
+        font-size: 22px;
+        margin: 40px 0 12px;
+        letter-spacing: -0.01em;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
+      }
+      .comp {
+        border: 1px solid var(--line);
+        border-left: 4px solid var(--slate);
+        border-radius: 10px;
+        padding: 16px 18px;
+        background: #fff;
+      }
+      .comp.amber {
+        border-left-color: var(--amber);
+      }
+      .comp.teal {
+        border-left-color: var(--teal);
+      }
+      .comp.blue {
+        border-left-color: var(--blue);
+      }
+      .comp h3 {
+        margin: 0 0 4px;
+        font-size: 16px;
+      }
+      .comp p {
+        margin: 0;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      ol.flow {
+        counter-reset: step;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      ol.flow li {
+        position: relative;
+        padding: 12px 0 12px 44px;
+        border-bottom: 1px solid var(--line);
+      }
+      ol.flow li:last-child {
+        border-bottom: 0;
+      }
+      ol.flow li::before {
+        counter-increment: step;
+        content: counter(step);
+        position: absolute;
+        left: 0;
+        top: 12px;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--ink);
+        color: #fff;
+        font-size: 14px;
+        font-weight: 700;
+        display: grid;
+        place-items: center;
+      }
+      code {
+        font: 13px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        background: #f1f5f9;
+        padding: 1px 6px;
+        border-radius: 5px;
+      }
+      footer {
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 48px;
+        border-top: 1px solid var(--line);
+        padding-top: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <span class="tag">Architecture overview</span>
+        <h1>Colruyt-X</h1>
+        <p class="lede">
+          A small sale-notification service for two people. You keep a shared
+          <strong>watchlist</strong> of Colruyt grocery products; every day the system checks
+          whether any watched product entered or improved a <strong>volume deal</strong> ("buy N,
+          pay X each") and sends a <strong>Telegram</strong> message when it does. It is a
+          full-stack TypeScript app — a React SPA and an Express API — deployed on Vercel and backed
+          by a Turso (libSQL) database.
+        </p>
+      </header>
+
+      <div class="card diagram">
+        <svg viewBox="0 0 1240 880" role="img" aria-label="System architecture diagram">
+          <defs>
+            <marker
+              id="arrow"
+              viewBox="0 0 10 10"
+              refX="9"
+              refY="5"
+              markerWidth="7"
+              markerHeight="7"
+              orient="auto-start-reverse"
+            >
+              <path d="M0 0 L10 5 L0 10 z" fill="#475569" />
+            </marker>
+            <style>
+              .box { fill: #fff; stroke-width: 2; rx: 12; }
+              .lbl { font: 700 16px sans-serif; fill: #1f2937; }
+              .sub { font: 13px sans-serif; fill: #6b7280; }
+              .edge { stroke: #475569; stroke-width: 2; fill: none; }
+              .elabel { font: 12px sans-serif; fill: #475569; }
+              .ebg { fill: #f8fafc; }
+              .zone { fill: #0f172a; opacity: 0.03; rx: 18; }
+              .zlbl { font: 700 13px sans-serif; fill: #94a3b8; letter-spacing: .08em; }
+            </style>
+          </defs>
+
+          <!-- Vercel platform zone -->
+          <rect class="zone" x="300" y="150" width="620" height="560" />
+          <text class="zlbl" x="320" y="178">VERCEL PLATFORM</text>
+
+          <!-- ===== EDGES (drawn first, under boxes) ===== -->
+          <!-- GCS bucket -> pipeline (step 1) -->
+          <path class="edge" d="M170 140 L170 560 L338 560" marker-end="url(#arrow)" />
+          <!-- Vercel Cron -> pipeline -->
+          <path class="edge" d="M985 140 L985 470 L882 470" marker-end="url(#arrow)" />
+          <!-- Users <-> SPA -->
+          <path class="edge" d="M222 405 L338 300" marker-end="url(#arrow)" marker-start="url(#arrow)" />
+          <!-- SPA -> API -->
+          <path class="edge" d="M572 270 L638 270" marker-end="url(#arrow)" />
+          <!-- API <-> Turso -->
+          <path class="edge" d="M882 285 L1000 405" marker-end="url(#arrow)" marker-start="url(#arrow)" />
+          <!-- pipeline <-> Turso (step 2) -->
+          <path class="edge" d="M882 600 L960 600 L1080 552" marker-end="url(#arrow)" marker-start="url(#arrow)" />
+          <!-- pipeline -> Telegram (step 3) -->
+          <path class="edge" d="M610 652 L700 758" marker-end="url(#arrow)" />
+          <!-- Telegram -> Users -->
+          <path class="edge" d="M558 805 L130 805 L130 492" marker-end="url(#arrow)" />
+
+          <!-- ===== EDGE LABELS ===== -->
+          <g>
+            <rect class="ebg" x="60" y="332" width="140" height="20" />
+            <text class="elabel" x="64" y="347">① download snapshot</text>
+
+            <rect class="ebg" x="892" y="300" width="170" height="20" />
+            <text class="elabel" x="896" y="315">daily 06:00 · CRON_SECRET</text>
+
+            <rect class="ebg" x="206" y="338" width="118" height="20" />
+            <text class="elabel" x="210" y="353">HTTPS · PIN cookie</text>
+
+            <rect class="ebg" x="566" y="248" width="80" height="20" />
+            <text class="elabel" x="570" y="263">fetch /api</text>
+
+            <rect class="ebg" x="900" y="332" width="118" height="20" />
+            <text class="elabel" x="904" y="347">SQL read / write</text>
+
+            <rect class="ebg" x="884" y="578" width="180" height="20" />
+            <text class="elabel" x="888" y="593">② upsert · read deal_state</text>
+
+            <rect class="ebg" x="620" y="694" width="110" height="20" />
+            <text class="elabel" x="624" y="709">③ send alert</text>
+
+            <rect class="ebg" x="150" y="796" width="100" height="20" />
+            <text class="elabel" x="154" y="811">push message</text>
+          </g>
+
+          <!-- ===== BOXES ===== -->
+          <!-- Colruyt GCS bucket -->
+          <rect class="box" x="40" y="40" width="260" height="100" stroke="#f59e0b" />
+          <text class="lbl" x="60" y="76">Colruyt GCS bucket</text>
+          <text class="sub" x="60" y="98">colruyt-products (public)</text>
+          <text class="sub" x="60" y="118">~15,200 products · daily JSON</text>
+
+          <!-- Vercel Cron -->
+          <rect class="box" x="980" y="40" width="220" height="100" stroke="#475569" />
+          <text class="lbl" x="1000" y="76">Vercel Cron</text>
+          <text class="sub" x="1000" y="98">schedule 0 6 * * *</text>
+          <text class="sub" x="1000" y="118">hits the cron endpoint</text>
+
+          <!-- Users -->
+          <rect class="box" x="40" y="380" width="180" height="110" stroke="#475569" />
+          <text class="lbl" x="60" y="416">Two users</text>
+          <text class="sub" x="60" y="438">browser · phone</text>
+          <text class="sub" x="60" y="458">PIN login</text>
+
+          <!-- React SPA -->
+          <rect class="box" x="340" y="210" width="232" height="120" stroke="#2563eb" />
+          <text class="lbl" x="360" y="246">React SPA</text>
+          <text class="sub" x="360" y="268">Login · Watchlist · Products</text>
+          <text class="sub" x="360" y="288">Vite static build</text>
+          <text class="sub" x="360" y="308">React 19 · Router 7 · Tailwind</text>
+
+          <!-- Express API -->
+          <rect class="box" x="640" y="210" width="240" height="120" stroke="#2563eb" />
+          <text class="lbl" x="660" y="246">Express API</text>
+          <text class="sub" x="660" y="268">serverless function</text>
+          <text class="sub" x="660" y="288">/api/auth · /products</text>
+          <text class="sub" x="660" y="308">/watchlist · /cron</text>
+
+          <!-- Cron pipeline -->
+          <rect class="box" x="340" y="430" width="542" height="220" stroke="#475569" />
+          <text class="lbl" x="362" y="466">Cron handler — /api/cron/import-products</text>
+          <text class="sub" x="362" y="500">① import — fetch GCS snapshot → upsert products</text>
+          <text class="sub" x="362" y="528">② detect — detectDeals(watchlist, deal_state)</text>
+          <text class="sub" x="362" y="556">③ notify — Telegram on onset / price improvement</text>
+          <text class="sub" x="362" y="592" font-style="italic">
+            import failure aborts before detect;
+          </text>
+          <text class="sub" x="362" y="612" font-style="italic">
+            notify failure skips state save → retries next run
+          </text>
+
+          <!-- Turso -->
+          <rect class="box" x="1000" y="360" width="200" height="200" stroke="#0d9488" />
+          <text class="lbl" x="1020" y="396">Turso (libSQL)</text>
+          <text class="sub" x="1020" y="424">products</text>
+          <text class="sub" x="1020" y="448">watchlist_items</text>
+          <text class="sub" x="1020" y="472">deal_state</text>
+          <text class="sub" x="1020" y="512" font-style="italic">tables created</text>
+          <text class="sub" x="1020" y="532" font-style="italic">lazily on first req</text>
+
+          <!-- Telegram -->
+          <rect class="box" x="560" y="760" width="280" height="90" stroke="#2563eb" />
+          <text class="lbl" x="580" y="796">Telegram Bot API</text>
+          <text class="sub" x="580" y="818">one message per deal event</text>
+          <text class="sub" x="580" y="838">TELEGRAM_BOT_TOKEN · CHAT_IDS</text>
+        </svg>
+      </div>
+
+      <h2>Components</h2>
+      <div class="grid">
+        <div class="comp amber">
+          <h3>Colruyt GCS bucket</h3>
+          <p>
+            Public Google Cloud Storage feed (<code>colruyt-products</code>) with a daily JSON
+            snapshot of the ~15k-product catalogue. The source of truth for prices and volume deals.
+          </p>
+        </div>
+        <div class="comp blue">
+          <h3>React SPA</h3>
+          <p>
+            The user-facing app: PIN login, the shared watchlist, and product search. Built by Vite
+            and served by Vercel as static files.
+          </p>
+        </div>
+        <div class="comp blue">
+          <h3>Express API</h3>
+          <p>
+            A single serverless function. Handles auth (HMAC-signed cookie / Bearer token), product
+            search, watchlist CRUD, and the cron endpoint.
+          </p>
+        </div>
+        <div class="comp">
+          <h3>Cron handler</h3>
+          <p>
+            The daily pipeline: import the latest snapshot, run pure <code>detectDeals</code> against
+            stored state, then notify. Gated by <code>CRON_SECRET</code>.
+          </p>
+        </div>
+        <div class="comp teal">
+          <h3>Turso (libSQL)</h3>
+          <p>
+            SQLite-compatible database. <code>products</code> mirrors the catalogue,
+            <code>watchlist_items</code> is the shared list, and <code>deal_state</code> remembers
+            what was already notified so a standing deal isn't re-sent daily.
+          </p>
+        </div>
+        <div class="comp blue">
+          <h3>Telegram Bot API</h3>
+          <p>
+            The notification channel. The notifier formats one message per deal event (with the
+            product image when available) and posts to each configured chat.
+          </p>
+        </div>
+      </div>
+
+      <h2>The daily flow</h2>
+      <ol class="flow">
+        <li>Vercel Cron calls <code>GET /api/cron/import-products</code> at 06:00, presenting <code>CRON_SECRET</code> as a Bearer token.</li>
+        <li><strong>Import</strong> — the handler finds the latest GCS snapshot, downloads it, and upserts every product into Turso. A failure here aborts the run so detection never sees stale data.</li>
+        <li><strong>Detect</strong> — it loads the watchlist plus the previous <code>deal_state</code> and runs the pure <code>detectDeals</code> function, emitting an event whenever a watched product newly enters a volume deal or its per-item price improves.</li>
+        <li><strong>Notify</strong> — each event is formatted and sent to Telegram. Only after notifications succeed is the new <code>deal_state</code> saved, so a Telegram failure simply retries next run.</li>
+        <li>Meanwhile, the two users browse the React SPA, log in with a PIN, search products, and add/remove items on the shared watchlist — all through the Express API against the same Turso database.</li>
+      </ol>
+
+      <footer>
+        See <code>CLAUDE.md</code> and <code>README.md</code> for setup, environment variables, and
+        commands. Diagram and copy are hand-maintained — update when the architecture changes.
+      </footer>
+    </div>
+  </body>
+</html>
