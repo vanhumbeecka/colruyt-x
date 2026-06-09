@@ -4,7 +4,10 @@ Sale-notification service for two people, built on Colruyt product data. Maintai
 
 ## Screenshots
 
-<!-- TODO: add screenshots of the watchlist, product search, and a Telegram notification -->
+<p align="center">
+  <img src="./docs/images/Screenshot%202026-06-09%20at%2009.12.14.png" width="49%" alt="image 1" />
+  <img src="./docs/images/Screenshot%202026-06-09%20at%2009.15.14.png" width="49%" alt="image 2" />
+</p>
 
 ## How it works
 
