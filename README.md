@@ -5,8 +5,9 @@ Sale-notification service for two people, built on Colruyt product data. Maintai
 ## Screenshots
 
 <p align="center">
-  <img src="./docs/images/Screenshot%202026-06-09%20at%2009.12.14.png" width="49%" alt="image 1" />
-  <img src="./docs/images/Screenshot%202026-06-09%20at%2009.15.14.png" width="49%" alt="image 2" />
+  <img src="./docs/images/Screenshot%202026-06-09%20at%2009.12.14.png" width="25%" alt="image 1" />
+  <img src="./docs/images/Screenshot%202026-06-09%20at%2009.15.14.png" width="25%" alt="image 2" />
+  <img src="./docs/images/Screenshot%202026-06-10%20at%2010.06.28.png" width="25%" alt="image 3" />
 </p>
 
 ## How it works
